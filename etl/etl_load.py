@@ -4,16 +4,9 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine, text
 from lxml import etree
+from api.core.config import settings
 
-# 1) PostgreSQL 연결 설정
-DB_USER = "nvduser"
-DB_PASS = "20193172"
-DB_HOST = "localhost"
-DB_NAME = "nvddb"
-
-engine = create_engine(
-    f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
-)
+engine = create_engine(settings.SYNC_DATABASE_URL)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"

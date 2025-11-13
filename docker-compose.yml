@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nvd-postgres
+    environment:
+      POSTGRES_USER: nvduser
+      POSTGRES_PASSWORD: 2828
+      POSTGRES_DB: nvddb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/create_nvd_schema.sql:/docker-entrypoint-initdb.d/01_create_nvd_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nvduser -d nvddb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: nvd-backend
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    command: >
+      uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  etl:
+    build: .
+    container_name: nvd-etl
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    # 처음 한번 실행해서 데이터 내려받고 적재/정규화
+    command: >
+      sh -c "
+        python etl/download_data.py &&
+        python etl/etl_load.py &&
+        python etl/etl_stage2.py
+      "
+    restart: "no"
+
+volumes:
+  pgdata:

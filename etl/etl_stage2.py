@@ -5,20 +5,13 @@ from pathlib import Path
 from lxml import etree
 from sqlalchemy import create_engine, text, MetaData, Table
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-
+from api.core.config import settings
 # ======================
 # DB 연결 설정
-# (1단계 etl_load.py 와 동일하게 맞출 것)
 # ======================
 
-DB_USER = "nvduser"
-DB_PASS = "20193172"
-DB_HOST = "localhost"
-DB_NAME = "nvddb"
 
-engine = create_engine(
-    f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
-)
+engine = create_engine(settings.SYNC_DATABASE_URL)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
