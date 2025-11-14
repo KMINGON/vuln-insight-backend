@@ -1,10 +1,11 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from lxml import etree
-from sqlalchemy import create_engine, text, MetaData, Table
+from sqlalchemy import MetaData, Table, create_engine, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+
 from api.core.config import settings
 # ======================
 # DB 연결 설정
@@ -21,14 +22,36 @@ DATA_DIR = BASE_DIR / "data"
 # 유틸 함수
 # ======================
 
-def parse_iso_ts(ts: str | None):
-    if not ts:
+def parse_iso_ts(ts):
+    """Safely parse ISO8601 strings (or datetime values) into timezone-aware datetimes."""
+    if ts in (None, ""):
         return None
-    # NVD 예시는 마이크로초까지 포함 가능, 기본 datetime.fromisoformat으로 처리
+
+    if isinstance(ts, datetime):
+        return ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+
+    value = str(ts).strip()
+    if not value:
+        return None
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+
     try:
-        return datetime.fromisoformat(ts)
-    except Exception:
-        return None
+        dt = datetime.fromisoformat(value)
+    except ValueError:
+        # Fallback to common patterns without timezone/milliseconds
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"):
+            try:
+                dt = datetime.strptime(value, fmt)
+                break
+            except ValueError:
+                continue
+        else:
+            return None
+
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 def parse_cpe23_uri(uri: str | None):

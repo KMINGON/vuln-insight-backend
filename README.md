@@ -38,10 +38,18 @@ CVE, CPE Match, CPE Dictionary, CWE 데이터 전체를 자동으로 다운로�
 ## 실행 방법
 ### Docker 이용
 ```bash
+-- 세팅
 docker compose up
+-- 끄기
+docker compose stop
+-- 켜기
+docker compose start
 ```
 FastAPI 실행 후 API는 다음에서 확인할 수 있습니다.  
 http://localhost:8000/docs
+
+> **Tip**: 최초 한 번 `etl` 서비스가 실행되어 데이터를 다운로드·정규화하면 PostgreSQL 볼륨에 데이터가 유지됩니다. 이후에는 ETL이 다시 돌 필요가 없으므로 `docker compose up backend` (필요 시 `db`)만 실행해 API 서버만 구동할 수 있습니다.
+
 ### 로컬에서 실행
 `.env` 생성 및 사용할 DB 정보 입력 (그대로 둬도 됨)
 ```bash
@@ -77,6 +85,8 @@ python etl/etl_stage2.py
 -- FastAPI 서버 실행
 uvicorn api.main:app --reload
 ```
+
+> 로컬 DB에 데이터가 이미 채워져 있다면, 위의 다운로드/ETL 단계는 생략하고 `uvicorn`만 재실행하면 됩니다.
 
 
 ## 디렉토리 구조

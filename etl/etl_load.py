@@ -1,15 +1,54 @@
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
-import pandas as pd
-from sqlalchemy import create_engine, text
 from lxml import etree
+from sqlalchemy import MetaData, Table, create_engine, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+
 from api.core.config import settings
 
 engine = create_engine(settings.SYNC_DATABASE_URL)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
+
+metadata = MetaData()
+cve_table = Table("cve", metadata, autoload_with=engine)
+cpe_dictionary_table = Table("cpe_dictionary", metadata, autoload_with=engine)
+cpe_match_table = Table("cpe_match", metadata, autoload_with=engine)
+cwe_table = Table("cwe", metadata, autoload_with=engine)
+
+
+def bulk_upsert(table: Table, rows: list[dict], conflict_cols: list[str], update_cols: list[str]):
+    if not rows:
+        return
+    stmt = pg_insert(table).values(rows)
+    update_payload = {col: getattr(stmt.excluded, col) for col in update_cols}
+    stmt = stmt.on_conflict_do_update(index_elements=conflict_cols, set_=update_payload)
+    with engine.begin() as conn:
+        conn.execute(stmt)
+
+
+def normalize_timestamp(value):
+    """Convert incoming timestamp strings to ISO8601 UTC for consistent DB insertion."""
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        value = str(value).strip()
+        if not value:
+            return None
+        if value.endswith("Z"):
+            value = value[:-1] + "+00:00"
+        try:
+            dt = datetime.fromisoformat(value)
+        except ValueError:
+            return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).isoformat()
 
 
 # ---- CVE 로드 함수 ----
@@ -22,8 +61,8 @@ def load_cve_json(json_path: Path):
         cve = item.get("cve", {})
         cve_id = cve.get("id")
         source = cve.get("sourceIdentifier")
-        published = cve.get("published")
-        last_modified = cve.get("lastModified")
+        published = normalize_timestamp(cve.get("published"))
+        last_modified = normalize_timestamp(cve.get("lastModified"))
         vuln_status = cve.get("vulnStatus")
 
         # raw_json: cve 객체 전체를 문자열로 저장
@@ -44,9 +83,13 @@ def load_cve_json(json_path: Path):
         print(f"[CVE] No rows in {json_path}")
         return
 
-    df = pd.DataFrame(rows)
-    df.to_sql("cve", engine, if_exists="append", index=False)
-    print(f"[CVE] Inserted {len(df)} rows from {json_path.name}")
+    bulk_upsert(
+        cve_table,
+        rows,
+        conflict_cols=["cve_id"],
+        update_cols=["source_identifier", "published", "last_modified", "vuln_status", "raw_json"],
+    )
+    print(f"[CVE] Upserted {len(rows)} rows from {json_path.name}")
 
 
 # ---- CPE Dictionary 로드 함수 ----
@@ -60,8 +103,8 @@ def load_cpe_dictionary_json(json_path: Path):
         cpe_name_id = cpe_obj.get("cpeNameId")
         cpe_name = cpe_obj.get("cpeName")
         deprecated = cpe_obj.get("deprecated")
-        created = cpe_obj.get("created")
-        last_modified = cpe_obj.get("lastModified")
+        created = normalize_timestamp(cpe_obj.get("created"))
+        last_modified = normalize_timestamp(cpe_obj.get("lastModified"))
 
         raw_json = json.dumps(cpe_obj, ensure_ascii=False)
 
@@ -81,9 +124,13 @@ def load_cpe_dictionary_json(json_path: Path):
         print(f"[CPE_DICT] No rows in {json_path}")
         return
 
-    df = pd.DataFrame(rows)
-    df.to_sql("cpe_dictionary", engine, if_exists="append", index=False)
-    print(f"[CPE_DICT] Inserted {len(df)} rows from {json_path.name}")
+    bulk_upsert(
+        cpe_dictionary_table,
+        rows,
+        conflict_cols=["cpe_name_id"],
+        update_cols=["cpe_name", "deprecated", "created", "last_modified", "raw_json"],
+    )
+    print(f"[CPE_DICT] Upserted {len(rows)} rows from {json_path.name}")
 
 
 # ---- CPE Match 로드 함수 ----
@@ -101,9 +148,9 @@ def load_cpe_match_json(json_path: Path):
         version_end_including = m.get("versionEndIncluding")
         version_end_excluding = m.get("versionEndExcluding")
         status = m.get("status")
-        created = m.get("created")
-        last_modified = m.get("lastModified")
-        cpe_last_modified = m.get("cpeLastModified")
+        created = normalize_timestamp(m.get("created"))
+        last_modified = normalize_timestamp(m.get("lastModified"))
+        cpe_last_modified = normalize_timestamp(m.get("cpeLastModified"))
 
         raw_json = json.dumps(m, ensure_ascii=False)
 
@@ -127,9 +174,24 @@ def load_cpe_match_json(json_path: Path):
         print(f"[CPE_MATCH] No rows in {json_path}")
         return
 
-    df = pd.DataFrame(rows)
-    df.to_sql("cpe_match", engine, if_exists="append", index=False)
-    print(f"[CPE_MATCH] Inserted {len(df)} rows from {json_path.name}")
+    bulk_upsert(
+        cpe_match_table,
+        rows,
+        conflict_cols=["match_criteria_id"],
+        update_cols=[
+            "criteria",
+            "version_start_including",
+            "version_start_excluding",
+            "version_end_including",
+            "version_end_excluding",
+            "status",
+            "created",
+            "last_modified",
+            "cpe_last_modified",
+            "raw_json",
+        ],
+    )
+    print(f"[CPE_MATCH] Upserted {len(rows)} rows from {json_path.name}")
 
 
 # ---- CWE XML 로드 함수 ----
@@ -171,9 +233,9 @@ def load_cwe_xml(xml_path: Path):
         print(f"[CWE] No rows in {xml_path}")
         return
 
-    df = pd.DataFrame(rows)
-    df.to_sql("cwe", engine, if_exists="append", index=False)
-    print(f"[CWE] Inserted {len(df)} rows from {xml_path.name}")
+    with engine.begin() as conn:
+        conn.execute(cwe_table.insert(), rows)
+    print(f"[CWE] Inserted {len(rows)} rows from {xml_path.name}")
 
 
 def main():

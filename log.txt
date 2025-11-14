@@ -1,0 +1,140 @@
+ table_schema |     table_name      |       column_name       |        data_type         |  udt_name   | is_nullable | character_maximum_length | numeric_precision | datetime_precision 
+--------------+---------------------+-------------------------+--------------------------+-------------+-------------+--------------------------+-------------------+--------------------
+ public       | cpe                 | cpe_name_id             | text                     | text        | NO          |                          |                   |                   
+ public       | cpe                 | cpe_uri                 | text                     | text        | NO          |                          |                   |                   
+ public       | cpe                 | part                    | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | vendor                  | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | product                 | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | cpe_version             | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | cpe_update              | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | edition                 | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | language                | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | sw_edition              | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | target_sw               | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | target_hw               | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | other                   | text                     | text        | YES         |                          |                   |                   
+ public       | cpe                 | deprecated              | boolean                  | bool        | YES         |                          |                   |                   
+ public       | cpe                 | created_ts              | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe                 | last_modified_ts        | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_deprecation_map | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cpe_deprecation_map | from_cpe_name_id        | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_deprecation_map | to_cpe_name_id          | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_deprecation_map | relation_type           | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_dictionary      | id                      | integer                  | int4        | NO          |                          |                32 |                   
+ public       | cpe_dictionary      | cpe_name_id             | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_dictionary      | cpe_name                | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_dictionary      | deprecated              | boolean                  | bool        | YES         |                          |                   |                   
+ public       | cpe_dictionary      | created                 | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_dictionary      | last_modified           | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_dictionary      | raw_json                | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match           | id                      | integer                  | int4        | NO          |                          |                32 |                   
+ public       | cpe_match           | match_criteria_id       | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match           | criteria                | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match           | version_start_including | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match           | version_start_excluding | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match           | version_end_including   | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match           | version_end_excluding   | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match           | status                  | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match           | created                 | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_match           | last_modified           | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_match           | cpe_last_modified       | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_match           | raw_json                | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match_name      | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cpe_match_name      | match_criteria_id       | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match_name      | cpe_name                | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_name      | cpe_name_id             | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_string    | match_criteria_id       | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match_string    | criteria_cpe_uri        | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_match_string    | version_start_incl      | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_string    | version_start_excl      | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_string    | version_end_incl        | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_string    | version_end_excl        | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_string    | status                  | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_match_string    | created_ts              | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_match_string    | last_modified_ts        | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_match_string    | cpe_last_modified_ts    | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cpe_ref             | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cpe_ref             | cpe_name_id             | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_ref             | ref                     | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_ref             | ref_type                | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_title           | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cpe_title           | cpe_name_id             | text                     | text        | NO          |                          |                   |                   
+ public       | cpe_title           | lang                    | text                     | text        | YES         |                          |                   |                   
+ public       | cpe_title           | title                   | text                     | text        | YES         |                          |                   |                   
+ public       | cve                 | id                      | integer                  | int4        | NO          |                          |                32 |                   
+ public       | cve                 | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve                 | source_identifier       | text                     | text        | YES         |                          |                   |                   
+ public       | cve                 | published               | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cve                 | last_modified           | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cve                 | vuln_status             | text                     | text        | YES         |                          |                   |                   
+ public       | cve                 | raw_json                | text                     | text        | NO          |                          |                   |                   
+ public       | cve_core            | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve_core            | source_identifier       | text                     | text        | YES         |                          |                   |                   
+ public       | cve_core            | vuln_status             | text                     | text        | YES         |                          |                   |                   
+ public       | cve_core            | published_ts            | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cve_core            | last_modified_ts        | timestamp with time zone | timestamptz | YES         |                          |                   |                  6
+ public       | cve_cpe_match       | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cve_cpe_match       | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve_cpe_match       | match_criteria_id       | text                     | text        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | criteria_cpe_uri        | text                     | text        | NO          |                          |                   |                   
+ public       | cve_cpe_match       | vulnerable              | boolean                  | bool        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | config_operator         | text                     | text        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | node_operator           | text                     | text        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | node_negate             | boolean                  | bool        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | version_start_incl      | text                     | text        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | version_start_excl      | text                     | text        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | version_end_incl        | text                     | text        | YES         |                          |                   |                   
+ public       | cve_cpe_match       | version_end_excl        | text                     | text        | YES         |                          |                   |                   
+ public       | cve_description     | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cve_description     | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve_description     | lang                    | text                     | text        | NO          |                          |                   |                   
+ public       | cve_description     | value                   | text                     | text        | NO          |                          |                   |                   
+ public       | cve_metric          | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cve_metric          | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve_metric          | cvss_version            | text                     | text        | NO          |                          |                   |                   
+ public       | cve_metric          | source                  | text                     | text        | YES         |                          |                   |                   
+ public       | cve_metric          | metric_type             | text                     | text        | YES         |                          |                   |                   
+ public       | cve_metric          | vector_string           | text                     | text        | YES         |                          |                   |                   
+ public       | cve_metric          | base_score              | numeric                  | numeric     | YES         |                          |                 3 |                   
+ public       | cve_metric          | base_severity           | text                     | text        | YES         |                          |                   |                   
+ public       | cve_metric          | exploitability_score    | numeric                  | numeric     | YES         |                          |                 3 |                   
+ public       | cve_metric          | impact_score            | numeric                  | numeric     | YES         |                          |                 3 |                   
+ public       | cve_metric          | raw_json                | jsonb                    | jsonb       | YES         |                          |                   |                   
+ public       | cve_reference       | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cve_reference       | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve_reference       | url                     | text                     | text        | NO          |                          |                   |                   
+ public       | cve_reference       | source                  | text                     | text        | YES         |                          |                   |                   
+ public       | cve_reference       | tags                    | ARRAY                    | _text       | YES         |                          |                   |                   
+ public       | cve_weakness        | id                      | bigint                   | int8        | NO          |                          |                64 |                   
+ public       | cve_weakness        | cve_id                  | text                     | text        | NO          |                          |                   |                   
+ public       | cve_weakness        | source                  | text                     | text        | YES         |                          |                   |                   
+ public       | cve_weakness        | weakness_type           | text                     | text        | YES         |                          |                   |                   
+ public       | cve_weakness        | cwe_code                | text                     | text        | YES         |                          |                   |                   
+ public       | cve_weakness        | cwe_id                  | integer                  | int4        | YES         |                          |                32 |                   
+ public       | cwe                 | id                      | integer                  | int4        | NO          |                          |                32 |                   
+ public       | cwe                 | cwe_id                  | integer                  | int4        | NO          |                          |                32 |                   
+ public       | cwe                 | name                    | text                     | text        | YES         |                          |                   |                   
+ public       | cwe                 | abstraction             | text                     | text        | YES         |                          |                   |                   
+ public       | cwe                 | status                  | text                     | text        | YES         |                          |                   |                   
+ public       | cwe                 | description             | text                     | text        | YES         |                          |                   |                   
+ public       | cwe                 | raw_xml                 | text                     | text        | NO          |                          |                   |                   
+(118 rows)
+
+    table_name    |     column_name      |        data_type         
+------------------+----------------------+--------------------------
+ cpe              | created_ts           | timestamp with time zone
+ cpe              | last_modified_ts     | timestamp with time zone
+ cpe_dictionary   | created              | timestamp with time zone
+ cpe_dictionary   | last_modified        | timestamp with time zone
+ cpe_match        | created              | timestamp with time zone
+ cpe_match        | last_modified        | timestamp with time zone
+ cpe_match        | cpe_last_modified    | timestamp with time zone
+ cpe_match_string | created_ts           | timestamp with time zone
+ cpe_match_string | last_modified_ts     | timestamp with time zone
+ cpe_match_string | cpe_last_modified_ts | timestamp with time zone
+ cve              | published            | timestamp with time zone
+ cve              | last_modified        | timestamp with time zone
+ cve_core         | published_ts         | timestamp with time zone
+ cve_core         | last_modified_ts     | timestamp with time zone
+(14 rows)
+

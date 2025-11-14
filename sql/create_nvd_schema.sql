@@ -212,3 +212,5 @@ CREATE TABLE IF NOT EXISTS cwe_core (
     description            TEXT,
     extended_description   TEXT
 );
+
+-- psql -h localhost -U nvduser -d nvddb -f sql/create_nvd_schema.sql

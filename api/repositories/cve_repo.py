@@ -14,16 +14,16 @@ class CVERepository:
         rows = await session.execute(q, {"limit": limit})
         return rows.mappings().all()
 
-    @staticmethod
-    async def fetch_by_date(session: AsyncSession, start: str, end: str):
-        q = text("""
-            SELECT cve_id, source_identifier, published, vuln_status, raw_json
-            FROM cve
-            WHERE published::timestamptz BETWEEN :start::timestamptz AND :end::timestamptz
-            ORDER BY published::timestamptz ASC
-        """)
-        rows = await session.execute(q, {"start": start, "end": end})
-        return rows.mappings().all()
+    # @staticmethod
+    # async def fetch_by_date(session: AsyncSession, start: str, end: str):
+    #     q = text("""
+    #         SELECT cve_id, source_identifier, published, vuln_status, raw_json
+    #         FROM cve
+    #         WHERE published::timestamptz BETWEEN :start::timestamptz AND :end::timestamptz
+    #         ORDER BY published::timestamptz ASC
+    #     """)
+    #     rows = await session.execute(q, {"start": start, "end": end})
+    #     return rows.mappings().all()
 
     @staticmethod
     async def summary(session: AsyncSession):

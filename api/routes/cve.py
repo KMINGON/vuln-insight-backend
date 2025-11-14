@@ -12,10 +12,14 @@ async def recent(limit: int = 20, session: AsyncSession = Depends(get_session)):
     rows = await CVERepository.fetch_recent(session, limit)
     return CVEService.convert_rows(rows)
 
-@router.get("/by-date")
-async def by_date(start: str, end: str, session: AsyncSession = Depends(get_session)):
-    rows = await CVERepository.fetch_by_date(session, start, end)
-    return CVEService.convert_rows(rows)
+# @router.get("/by-date")
+# async def by_date(
+#     start: datetime,
+#     end: datetime,
+#     session: AsyncSession = Depends(get_session),
+# ):
+#     rows = await CVERepository.fetch_by_date(session, start, end)
+#     return CVEService.convert_rows(rows)
 
 @router.get("/summary")
 async def summary(session: AsyncSession = Depends(get_session)):
