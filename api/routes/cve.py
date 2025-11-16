@@ -1,27 +1,39 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.db import get_session
-from api.repositories.cve_repo import CVERepository
+from api.schemas import CVEDetailResponse, CVEListResponse, CVESummaryResponse
 from api.services.cve_service import CVEService
 
 router = APIRouter(prefix="/api/v1/cve", tags=["CVE"])
 
-@router.get("/recent")
-async def recent(limit: int = 20, session: AsyncSession = Depends(get_session)):
-    rows = await CVERepository.fetch_recent(session, limit)
-    return CVEService.convert_rows(rows)
 
-# @router.get("/by-date")
-# async def by_date(
-#     start: datetime,
-#     end: datetime,
-#     session: AsyncSession = Depends(get_session),
-# ):
-#     rows = await CVERepository.fetch_by_date(session, start, end)
-#     return CVEService.convert_rows(rows)
+@router.get(
+    "/recent",
+    response_model=CVEListResponse,
+    summary="최신 CVE 목록 조회",
+)
+async def recent(
+    limit: int = Query(20, ge=1, le=200, description="반환할 최대 건수"),
+    offset: int = Query(0, ge=0, description="페이지네이션 오프셋"),
+    session: AsyncSession = Depends(get_session),
+):
+    return await CVEService.get_recent(session=session, limit=limit, offset=offset)
 
-@router.get("/summary")
+
+@router.get(
+    "/summary",
+    response_model=CVESummaryResponse,
+    summary="CVE 집계 요약",
+)
 async def summary(session: AsyncSession = Depends(get_session)):
-    raw = await CVERepository.summary(session)
-    return CVEService.convert_summary(raw)
+    return await CVEService.get_summary(session=session)
+
+
+@router.get(
+    "/{cve_id}",
+    response_model=CVEDetailResponse,
+    summary="CVE 상세 정보",
+)
+async def detail(cve_id: str, session: AsyncSession = Depends(get_session)):
+    return await CVEService.get_detail(session=session, cve_id=cve_id)
